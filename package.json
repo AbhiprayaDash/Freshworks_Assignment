@@ -1,0 +1,25 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "adafsda",
+  "main": "create.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "dadasd"
+  },
+  "keywords": [
+    "dasdsad"
+  ],
+  "author": "fsdfs",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "crypto": "^1.0.1",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "nodemon": "^2.0.6"
+  }
+}
