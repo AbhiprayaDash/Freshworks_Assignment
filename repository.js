@@ -30,24 +30,28 @@ class Repository {
 		const jsonRecords = await 
 			fs.promises.readFile(this.filename, { 
 			encoding: 'utf8'
-		}) 
+        }) 
 		// Parsing json records in javascript 
-		// object type records 
-        let found=false
-        console.log("attributes")
-        console.log(attrs);
-		// Iterating through each record 
-		    if (jsonRecords.hasOwnProperty(attrs)) { 
-					return null;
-			} 
-			// If 'found' remains true after 
-			// iterating through each given 
-			// property that means record found 
-
-		// If record not found 
-		return jsonRecords
-	} 
-} 
+        // object type records 
+        if(!jsonRecords)
+        {
+        console.log('this is null')
+        return null
+        }
+        else{
+            var keys=attrs.key
+            var parsedjson=JSON.parse(jsonRecords)
+        // Iterating through each record 
+        if(parsedjson.hasOwnProperty(attrs.key)){
+            //define here
+            return parsedjson[keys]
+        }
+        return null
+        } 
+  
+        // If record not found 
+    } 
+    } 
 
 // The 'datastore.json' file created 
 // at runtime if it not exist here we 
@@ -56,4 +60,4 @@ class Repository {
 // that means database(datastore.json) 
 // already exist and there are also 
 // records in it. 
-module.exports = new Repository('datastore.json') 
+module.exports = new Repository('data.txt') 
