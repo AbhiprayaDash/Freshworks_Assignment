@@ -9,9 +9,17 @@ var jsonParser = bodyParser.json()
 app.use(express.json({extended:false}));
 //Define Routes
 app.use('/read',require('./read'));
-
+app.use('/delete',require('./delete'));
 app.post('/create' ,jsonParser,async function (req, res,next){
     try{
+      var stats = fs.statSync("data.txt")
+      var fileSizeInBytes = stats.size;
+      // Convert the file size to megabytes (optional)
+      var sizeinmb = fileSizeInBytes / (1024*1024);
+      if(sizeinmb>1000)
+      {
+         throw new Error('Size of file exceeded 1 GB');
+      }
         const data=new Object(),
         email=req.body.mail
         data[email]=req.body.password
