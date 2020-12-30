@@ -35,7 +35,6 @@ class Repository {
         // object type records 
         if(!jsonRecords)
         {
-        console.log('this is null')
         return null
         }
         else{
@@ -44,7 +43,7 @@ class Repository {
         // Iterating through each record 
         if(parsedjson.hasOwnProperty(attrs.key)){
             //define here
-            return parsedjson[keys]
+            return keys
         }
         return null
         } 

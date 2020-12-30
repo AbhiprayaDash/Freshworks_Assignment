@@ -20,7 +20,6 @@ router.delete('/' ,jsonParser,async function (req, res,next){
         const user=await repo.findOneBy({
              key:req.body.mail 
         })
-        console.log(user)
        if(user)
        {
         var file =new Object()
