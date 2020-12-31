@@ -1,7 +1,8 @@
 const repo= require('./repository')
 const ttl=require('./timetolive')
 const fs = require('fs')
-
+const AsyncLock = require('node-async-locks').AsyncLock;
+var lock = new AsyncLock();
 class KeyvalueDatastore
 {
     constructor(init)
@@ -30,7 +31,7 @@ class KeyvalueDatastore
                throw new Error('Size of file exceeded 1 GB');
            }
        }
-      createkeyvaluedata(key,value){
+       createkeyvaluepair(key,value){
            this.checkfilesize()
            const data=new Object(),
            email=key
@@ -41,7 +42,7 @@ class KeyvalueDatastore
            })
            if(user)
            {
-              throw new Error('User already exists');
+               throw new Error('User already exists');
            }
            else{
                var jsonContent=JSON.stringify(data)
@@ -51,13 +52,13 @@ class KeyvalueDatastore
                {
                   fs.writeFileSync("data.txt", jsonContent, 'utf8', function (err) {
                   if (err) {
-                       console.log("An error occured while writing JSON Object to File.");
+                     console.log("An error occured while writing JSON Object to File.");
                   }
-                   console.log("saved");
-                  });
-               }
+                  console.log("saved");
+               });
+              }
               else{
-                //appending contents of file and new key value data
+                  //appending contents of file and new key value data
                   var fileout=JSON.parse(file)
                   fileout[email]=b
                   var output = {};
@@ -69,14 +70,18 @@ class KeyvalueDatastore
                   }
                   console.log("saved");
                    });
-               }
-               //time to live property of key
-               ttl.queuepush(req.body.mail)
-               ttl.timeoutfunction()
-               return;
-            }
-      }
-      readkey(key)
+              }
+            //time to live property of key
+                ttl.queuepush(req.body.mail)
+                ttl.timeoutfunction()
+                return;
+           }
+       }
+       createkeyvaluedata(key,value)
+       {
+        lock.enter(createkeyvaluepair(key,value));
+       }
+      readkeydata(key)
       {
           //this function will check the size of file
           this.checkfilesize()
@@ -94,7 +99,11 @@ class KeyvalueDatastore
             throw new Error('Invalid key');
           }
       }
-      deletekey(key)
+      readkey(key)
+      {
+       lock.enter(readkeydata(key));
+      }
+      deletekeydata(key)
       {
           const user=repo.findOneBy({
               checkkey:key
@@ -116,5 +125,9 @@ class KeyvalueDatastore
           else{
               throw new Error('User not exists');
           }
+      }
+      deletekey(key)
+      {
+        lock.enter(deletekeydata(key));
       }
   }
