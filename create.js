@@ -1,75 +1,120 @@
-const express = require('express')
 const repo= require('./repository')
 const ttl=require('./timetolive')
 const fs = require('fs')
-const app = express()
-var bodyParser = require('body-parser')
-const { TIMEOUT } = require('dns')
-const port = process.env.PORT || 5000
-var jsonParser = bodyParser.json()
 
-app.use(express.json({extended:false}));
-//Define Routes
-app.use('/read',require('./read'));
-app.use('/delete',require('./delete'));
-
-console.log('started')
-app.post('/create',jsonParser,async function (req, res,next){
-    try{
-      var stats = fs.statSync("data.txt")
-      var fileSizeInBytes = stats.size;
-      // Convert the file size to megabytes (optional)
-      var sizeinmb = fileSizeInBytes / (1024*1024);
-      if(sizeinmb>1000)
-      {
-         throw new Error('Size of file exceeded 1 GB');
-      }
-        const data=new Object(),
-        email=req.body.mail
-        data[email]=req.body.password
-        const user=await repo.findOneBy({
-             key:req.body.mail 
-        })
-       if(user)
-       {
-         throw new Error('User already exists');
-       }
-       else{
-      var jsonContent=JSON.stringify(data)
-      var file =new Object()
-      file=fs.readFileSync('data.txt','utf8');
-       if(!file)
-       {
-        fs.writeFileSync("data.txt", jsonContent, 'utf8', function (err) {
-          if (err) {
-              console.log("An error occured while writing JSON Object to File.");
-          }
-           console.log("saved");
-        });
-       }
-       else{
-        var fileout=JSON.parse(file)
-        fileout[email]=req.body.password
-        var output = {};
-        output = Object.assign(fileout, data)
-        var outputfinal=JSON.stringify(output)
-        fs.writeFileSync("data.txt", outputfinal, 'utf8', function (err) {
-        if (err) {
-            console.log("An error occured while writing JSON Object to File.");
+class KeyvalueDatastore
+{
+    constructor(init)
+    {
+        //Initialize json file path
+        var path;
+        if(init)
+        {
+          path=init;
         }
-         console.log("saved");
-        });
-      }
-      ttl.queuepush(req.body.mail)
-      ttl.auxfunction()
-      return res.send(200, { message: 'ok' });
+        else{
+          path='data.txt'
+        }
+        fs.writeFile(path, '', function (err) {
+           if (err) throw err;
+           console.log('Saved!');
+         });
+    };
+      checkfilesize(path){
+           var stats = fs.statSync(path)
+           var fileSizeInBytes = stats.size;
+           // Convert the file size to megabytes
+           var sizeinmb = fileSizeInBytes / (1024*1024);
+           if(sizeinmb>1000)
+           {
+               throw new Error('Size of file exceeded 1 GB');
+           }
        }
+      createkeyvaluedata(key,value){
+           this.checkfilesize()
+           const data=new Object(),
+           email=key
+           data[email]=value
+           //check if key is already present
+           const user=repo.findOneBy({
+               checkkey:key 
+           })
+           if(user)
+           {
+              throw new Error('User already exists');
+           }
+           else{
+               var jsonContent=JSON.stringify(data)
+               var file =new Object()
+               file=fs.readFileSync('data.txt','utf8');
+               if(!file)
+               {
+                  fs.writeFileSync("data.txt", jsonContent, 'utf8', function (err) {
+                  if (err) {
+                       console.log("An error occured while writing JSON Object to File.");
+                  }
+                   console.log("saved");
+                  });
+               }
+              else{
+                //appending contents of file and new key value data
+                  var fileout=JSON.parse(file)
+                  fileout[email]=b
+                  var output = {};
+                  output = Object.assign(fileout, data)
+                  var outputfinal=JSON.stringify(output)
+                  fs.writeFileSync("data.txt", outputfinal, 'utf8', function (err) {
+                  if (err) {
+                      console.log("An error occured while writing JSON Object to File.");
+                  }
+                  console.log("saved");
+                   });
+               }
+               //time to live property of key
+               ttl.queuepush(req.body.mail)
+               ttl.timeoutfunction()
+               return;
+            }
       }
-   catch (err) {
-    next(err);
+      readkey(key)
+      {
+          //this function will check the size of file
+          this.checkfilesize()
+          //check if key is already present
+          const user=repo.findOneBy({
+             checkkey:key
+          })
+          if(user)
+          {
+            console.log('user found')
+            console.log(user)
+            return
+          }  
+          else{
+            throw new Error('Invalid key');
+          }
+      }
+      deletekey(key)
+      {
+          const user=repo.findOneBy({
+              checkkey:key
+           })
+           if(user)
+           {
+              var file =new Object()
+              file=fs.readFileSync('data.txt','utf8');
+              var fileout=JSON.parse(file)
+              delete fileout[req.body.mail]
+              var outputfinal=JSON.stringify(fileout)
+              fs.writeFileSync("data.txt", outputfinal, 'utf8', function (err) {
+              if (err) {
+                  console.log("An error occured while writing JSON Object to File.");
+                }
+                console.log("deleted");
+              });
+           }
+          else{
+              throw new Error('User not exists');
+          }
+      }
   }
-})
-
-app.listen(port, () => { 
-    console.log(`Server start on port ${port}`) 
-  }) 

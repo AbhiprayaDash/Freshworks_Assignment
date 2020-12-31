@@ -23,7 +23,7 @@ return !this.isEmpty() ? this.elements[0] : undefined;
 Queue.prototype.length = function() {
 return this.elements.length;
 }
-function tout()
+function timetolive()
 {
     var file =new Object()
     file=fs.readFileSync('data.txt','utf8');
@@ -53,17 +53,18 @@ function tout()
     }
       return;
 }
-function myfunction() {
-    tout()
+function helperfunction() {
+    timetolive()
   }
 class Timetolive{
     constructor()
     {
       let q= new Queue()
     }  
-  auxfunction()
+  timeoutfunction()
   {
-    setTimeout(myfunction,7000)
+    //key will have time to live property of 15 mins
+    setTimeout(helperfunction,150000)
   }
   queuepush(a)
   {

@@ -38,10 +38,10 @@ class Repository {
         return null
         }
         else{
-            var keys=attrs.key
+            var keys=attrs.checkkey
             var parsedjson=JSON.parse(jsonRecords)
         // Iterating through each record 
-        if(parsedjson.hasOwnProperty(attrs.key)){
+        if(parsedjson.hasOwnProperty(attrs.checkkey)){
             //define here
             return keys
         }
