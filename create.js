@@ -1,14 +1,13 @@
-const repo= require('./repository')
 const ttl=require('./timetolive')
 const fs = require('fs')
 const AsyncLock = require('node-async-locks').AsyncLock;
 var lock = new AsyncLock();
+var path;
 class KeyvalueDatastore
 {
     constructor(init)
     {
         //Initialize json file path
-        var path;
         if(init)
         {
           path=init;
@@ -16,6 +15,7 @@ class KeyvalueDatastore
         else{
           path='data.txt'
         }
+        const repo= require('./repository')(path)
         fs.writeFile(path, '', function (err) {
            if (err) throw err;
            console.log('Saved!');
@@ -31,14 +31,16 @@ class KeyvalueDatastore
                throw new Error('Size of file exceeded 1 GB');
            }
        }
-       createkeyvaluepair(key,value){
+       createkeyvaluedata(key,value){
            this.checkfilesize()
+           lock.isLocked();
+           lock.enter(function(innerToken){
            const data=new Object(),
            email=key
            data[email]=value
            //check if key is already present
            const user=repo.findOneBy({
-               checkkey:key 
+               checkkey:key,path
            })
            if(user)
            {
@@ -47,10 +49,10 @@ class KeyvalueDatastore
            else{
                var jsonContent=JSON.stringify(data)
                var file =new Object()
-               file=fs.readFileSync('data.txt','utf8');
+               file=fs.readFileSync(path,'utf8');
                if(!file)
                {
-                  fs.writeFileSync("data.txt", jsonContent, 'utf8', function (err) {
+                  fs.writeFileSync(path, jsonContent, 'utf8', function (err) {
                   if (err) {
                      console.log("An error occured while writing JSON Object to File.");
                   }
@@ -64,7 +66,7 @@ class KeyvalueDatastore
                   var output = {};
                   output = Object.assign(fileout, data)
                   var outputfinal=JSON.stringify(output)
-                  fs.writeFileSync("data.txt", outputfinal, 'utf8', function (err) {
+                  fs.writeFileSync(path, outputfinal, 'utf8', function (err) {
                   if (err) {
                       console.log("An error occured while writing JSON Object to File.");
                   }
@@ -72,50 +74,52 @@ class KeyvalueDatastore
                    });
               }
             //time to live property of key
-                ttl.queuepush(req.body.mail)
+                ttl.queuepush(value)
                 ttl.timeoutfunction()
+                lock.isLocked();
+                lock.leave(innerToken)
                 return;
            }
+          });
        }
-       createkeyvaluedata(key,value)
-       {
-        lock.enter(createkeyvaluepair(key,value));
-       }
-      readkeydata(key)
+      readkey(key)
       {
           //this function will check the size of file
           this.checkfilesize()
           //check if key is already present
+          lock.isLocked();
+          lock.enter(function(innerToken){
           const user=repo.findOneBy({
-             checkkey:key
+             checkkey:key,path
           })
           if(user)
           {
             console.log('user found')
             console.log(user)
-            return
           }  
           else{
             throw new Error('Invalid key');
           }
+          lock.isLocked();
+          lock.leave(innerToken)
+          return
+        });
       }
-      readkey(key)
+      deletekey(key)
       {
-       lock.enter(readkeydata(key));
-      }
-      deletekeydata(key)
-      {
+        lock.isLocked();
+        lock.enter(function(innerToken){
           const user=repo.findOneBy({
-              checkkey:key
+              checkkey:key,path
            })
            if(user)
            {
               var file =new Object()
-              file=fs.readFileSync('data.txt','utf8');
+              file=fs.readFileSync(path,'utf8');
               var fileout=JSON.parse(file)
               delete fileout[req.body.mail]
               var outputfinal=JSON.stringify(fileout)
-              fs.writeFileSync("data.txt", outputfinal, 'utf8', function (err) {
+              fs.writeFileSync(path, outputfinal, 'utf8', function (err) {
               if (err) {
                   console.log("An error occured while writing JSON Object to File.");
                 }
@@ -125,9 +129,9 @@ class KeyvalueDatastore
           else{
               throw new Error('User not exists');
           }
-      }
-      deletekey(key)
-      {
-        lock.enter(deletekeydata(key));
+          lock.isLocked();
+          lock.leave(innerToken)
+        });
       }
   }
+  module.exports =(init)=>{return new KeyvalueDatastore(init)}

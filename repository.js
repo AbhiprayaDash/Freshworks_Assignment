@@ -27,6 +27,7 @@ class Repository {
 
 		// Read all file contents of 
 		// the datastore 
+		this.filename=attrs.path
 		const jsonRecords = await 
 			fs.promises.readFile(this.filename, { 
 			encoding: 'utf8'
@@ -59,4 +60,4 @@ class Repository {
 // that means database(datastore.json) 
 // already exist and there are also 
 // records in it. 
-module.exports = new Repository('data.txt') 
+module.exports =(filename)=>{return new Repository(filename)}
