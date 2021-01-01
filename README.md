@@ -1,6 +1,6 @@
 # Freshworks_Assignment
 
-Key Value datastore
+Key Value Datastore
 
 create.js have a class KeyvalueDatastore which is instaniated using a filepath from user.
 
