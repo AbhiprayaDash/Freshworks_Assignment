@@ -1,0 +1,17 @@
+Input
+
+1.createkeyvaluedata("Abhipraya","abhipraya12")
+2.createkeyvaluedata("Abhipraya12","abhi")
+3.createkeyvaluedata("Abhipraya","abhi@12")
+4.readkey("Abhipraya")
+5.deletekey("Abhipraya")
+
+
+Output
+
+1."saved"
+2."saved"
+3.Error:"User already exists"
+4."user found"
+  "abhipraya12"
+5."deleted"
