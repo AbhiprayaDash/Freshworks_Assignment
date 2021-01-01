@@ -6,7 +6,7 @@ create.js have a class KeyvalueDatastore which is instaniated using a filepath f
 
 <h2><b>Functional features</b></h2>
 1. filepath is passed by the user during Class initialization if path is not given it will set a defaultpath.<br>
-2. Create function createkeyvaluedata can be invoked using key value as parameters.<br>
+2. Create function createkeyvaluedata can be invoked using key capped at 32 charcters value as parameters.<br>
 3. finOne function will check if there is a data in the file corresponding to the key,if key is already present it will return error.Otherwise create a key value pair in the file.We will use findOne function from Repository class<br>
 4. readkey function will take key as argument and return the data if key is present otherwise return error.<br>
 5. deletekey function will take key as argument and return data if present otherwise return error.<br>
