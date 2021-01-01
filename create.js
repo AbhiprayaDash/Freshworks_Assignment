@@ -31,7 +31,12 @@ class KeyvalueDatastore
                throw new Error('Size of file exceeded 1 GB');
            }
        }
-       createkeyvaluedata(key,value){
+       createkeyvaluedata(key1,value){
+           var key = key1.trim;
+           if(key.length>32)
+           {
+               throw new Error('size of key exceeded 32 chars');
+           }
            this.checkfilesize()
            lock.isLocked();
            lock.enter(function(innerToken){
@@ -82,12 +87,18 @@ class KeyvalueDatastore
            }
           });
        }
-      readkey(key)
+      readkey(key1)
       {
+          var key = key1.trim;
+          if(key.length>32)
+          {
+            throw new Error('size of key exceeded 32 chars');
+          }
           //this function will check the size of file
           this.checkfilesize()
           //check if key is already present
           lock.isLocked();
+          
           lock.enter(function(innerToken){
           const user=repo.findOneBy({
              checkkey:key,path
@@ -105,8 +116,13 @@ class KeyvalueDatastore
           return
         });
       }
-      deletekey(key)
+      deletekey(key1)
       {
+        var key = key1.trim;
+        if(key.length>32)
+        {
+          throw new Error('size of key exceeded 32 chars');
+        }
         lock.isLocked();
         lock.enter(function(innerToken){
           const user=repo.findOneBy({
