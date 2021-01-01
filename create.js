@@ -62,7 +62,7 @@ class KeyvalueDatastore
               else{
                   //appending contents of file and new key value data
                   var fileout=JSON.parse(file)
-                  fileout[email]=b
+                  fileout[email]=value
                   var output = {};
                   output = Object.assign(fileout, data)
                   var outputfinal=JSON.stringify(output)

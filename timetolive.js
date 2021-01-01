@@ -23,48 +23,49 @@ return !this.isEmpty() ? this.elements[0] : undefined;
 Queue.prototype.length = function() {
 return this.elements.length;
 }
-function timetolive()
-{
-    var file =new Object()
-    file=fs.readFileSync('data.txt','utf8');
-    if(!q.isEmpty())
-    {
-      var top=q.peek();
-      q.dequeue(top)
-      if(file)
-      {
-        var fileout=JSON.parse(file)
-        const user=repo.findOneBy({
-          key:top
-       })
-       if(user)
-       {
-        console.log('deleted')
-        delete fileout[top]
-       }
-        var outputfinal=JSON.stringify(fileout)
-        fs.writeFileSync("data.txt", outputfinal, 'utf8', function (err) {
-          if (err) {
-              console.log("An error occured while writing JSON Object to File.");
-          }
-           console.log("saved");
-        });
-      }
-    }
-      return;
-}
-function helperfunction() {
-    timetolive()
-  }
+
 class Timetolive{
     constructor()
     {
       let q= new Queue()
     }  
+    timetolive()
+    {
+        var file =new Object()
+        file=fs.readFileSync('data.txt','utf8');
+        if(!q.isEmpty())
+        {
+          var top=q.peek();
+          q.dequeue(top)
+          if(file)
+          {
+            var fileout=JSON.parse(file)
+            const user=repo.findOneBy({
+              key:top
+           })
+           if(user)
+           {
+            console.log('deleted')
+            delete fileout[top]
+           }
+            var outputfinal=JSON.stringify(fileout)
+            fs.writeFileSync("data.txt", outputfinal, 'utf8', function (err) {
+              if (err) {
+                  console.log("An error occured while writing JSON Object to File.");
+              }
+               console.log("saved");
+            });
+          }
+        }
+          return;
+    }
+     helperfunction() {
+        this.timetolive()
+      }
   timeoutfunction()
   {
     //key will have time to live property of 15 mins
-    setTimeout(helperfunction,150000)
+    setTimeout(this.helperfunction,150000)
   }
   queuepush(a)
   {
